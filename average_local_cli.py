@@ -68,8 +68,9 @@ def average_ssp_period(band, ssp, period, input_path=None):
         
         out_folder=os.path.join(os.getcwd(), *['out',f'out_{ssp}_{period}'])
         if not os.path.exists(out_folder):
-            os.mkdir(out_folder)
-            
+            os.makedirs(out_folder)
+        
+        
         out_file_name=f'bio{band}_{ssp}_{period}.tif'
         out_file_path=os.path.join(out_folder, out_file_name)
         
@@ -87,5 +88,5 @@ def average_ssp_period(band, ssp, period, input_path=None):
         
 if __name__=='__main__':
         
-    average_ssp_period(args.band, args.ssp, args.period)
+    average_ssp_period(args.band, args.ssp, args.period, args.input_directory)
      
