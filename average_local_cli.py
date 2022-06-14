@@ -14,7 +14,7 @@ Created on Wed Jun  8 09:51:00 2022
 
 import os
 import numpy as np
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt
 from osgeo import gdal
 import time
 
@@ -22,13 +22,14 @@ import time
 import argparse
 parser= argparse.ArgumentParser(description='Program to average gcms by ssp and period')
 parser.add_argument('-i','--input_directory', type=str, metavar='', help='specify the folder where the tif files to be averaged are')
+parser.add_argument('-o','--output_directory', type=str, metavar='', help='specify the folder where the resulting file will be stored')
 parser.add_argument('-b','--band', type=int, metavar='',help='Specify which band will be averaged')
 parser.add_argument('-s','--ssp', type=str, metavar='',help='Specify which for which ssp the average will be generated. Format "ssp213"')
 parser.add_argument('-p','--period', type=str, metavar='',help='Specify which for which period the average will be generated. Format "YYYY-YYYY"')
 
 args = parser.parse_args()
 
-os.environ['PROJ_LIB']="C:\\Users\\Alex\\.conda\\envs\\bioenv\\Library\\share\\proj"
+#os.environ['PROJ_LIB']="C:\\Users\\Alex\\.conda\\envs\\bioenv\\Library\\share\\proj"
 
 #biovar=[1]
 
@@ -46,7 +47,7 @@ def build_gdal_call(band,infiles, outfile):
     return  'gdal_calc.py -A '+' '.join(infiles)+f' --outfile={outfile} --A_band={band} --calc="numpy.nanmean(A,axis=0)" --NoDataValue=-9999'
             
 
-def average_ssp_period(band, ssp, period, input_path=None):
+def average_ssp_period_sband(band, ssp, period, input_path=None, out_path=None):
 
     input_folder=''
     if input_path is None:    
@@ -56,7 +57,7 @@ def average_ssp_period(band, ssp, period, input_path=None):
     
     if not os.path.exists(input_folder):
         #os.mkdir(out_folder)
-        print(f'ERROR: The path {input_folder} does not exist in the current folder {os.getcwd()}\n')
+        print(f'ERROR: Could not find the path {input_folder} \n')
     else:
         infile_names= os.listdir(input_folder)
         infilepaths=[]
@@ -65,8 +66,12 @@ def average_ssp_period(band, ssp, period, input_path=None):
             infilepaths.append(path_file)
         
         ## Creates the output folder
-        
-        out_folder=os.path.join(os.getcwd(), *['out',f'out_{ssp}_{period}'])
+        #out_folder=''
+        if out_path is None:
+            out_folder=os.path.join(os.getcwd(), *['out',f'out_{ssp}_{period}'])
+        else:
+            out_folder=os.path.join(out_path, *['out',f'out_{ssp}_{period}'])
+
         if not os.path.exists(out_folder):
             os.makedirs(out_folder)
         
@@ -87,6 +92,13 @@ def average_ssp_period(band, ssp, period, input_path=None):
         print(f"Average completed. Time elapsed: {end-start} seconds")
         
 if __name__=='__main__':
-        
-    average_ssp_period(args.band, args.ssp, args.period, args.input_directory)
+
+
+    if args.band is None:
+        total_bands=19
+        for i in range(1,total_bands+1):
+            average_ssp_period_sband(i, args.ssp, args.period, args.input_directory, args.output_directory)
+
+    else:
+        average_ssp_period_sband(args.band, args.ssp, args.period, args.input_directory, args.output_directory)
      
