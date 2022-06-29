@@ -20,7 +20,7 @@ import shutil
 import argparse
 parser= argparse.ArgumentParser(description='Program to average gcms by ssp and period')
 #parser.add_argument('-i','--input_directory', type=str, metavar='', help='specify the folder where the tif files to be averaged are')
-#parser.add_argument('-b','--band', type=int, metavar='',help='Specify which band will be averaged')
+parser.add_argument('-o','--output_folder', type=str, metavar='',help='Specify path where the files will be copied to')
 parser.add_argument('-s','--ssp', type=str, metavar='',help='Specify which for which ssp the average will be generated. Format "ssp213"')
 parser.add_argument('-p','--period', type=str, metavar='',help='Specify which for which period the average will be generated. Format "YYYY-YYYY"')
 
@@ -32,22 +32,27 @@ periods=["2021-2040"] #,"2041-2060"]
 name_p1="wc2.1_30s_bioc_"
 
 
-def copy_from_payal(ssp, period):
-    """Copies gcm's bioclim variables of specified ssp and period, from Payal's drive 
-    It follows Payal's folder structure ./worldclim/future/raw/cmip6/30s so it is meant to be run only pointing to that folder
-
+def copy_from_payal(ssp, period, out=None):
+    """Copies gcm's bioclim variables of specified ssp and period, from Payal's drive to Skip's Mediaflux storage
+    It follows Payal's folder structure ./worldclim/future/raw/cmip6/30s so it is meant to be run only pointing to that folder  
     Args:
         ssp (str): ssp whose gcm's will be copied
         period (str): period whose gcm's will be copied
+        out (str, optional): Output folder. Defaults to None.
     """
+   
         
     start_glob=time.time()
 
     # Builds the path where the models are stored, following Payal's drive folder structure
     inpath_p1=os.path.join("/",*["home","ubuntu","mnt3","worldclim","future","raw","cmip6","30s"]) 
     print("Payal's files are in: ",inpath_p1)
+    out_folder=''
+    if out is None:
+        out_folder=f'/home/ubuntu/mnt/exp_alex/{period}/{ssp}'
+    else:
+        out_folder=os.path.join(out,[period,ssp])
 
-    out_folder=f'/home/ubuntu/mnt/exp_alex/{period}/{ssp}'
  
     
     if not os.path.exists(out_folder):
