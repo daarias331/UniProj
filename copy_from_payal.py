@@ -26,30 +26,25 @@ parser.add_argument('-p','--period', type=str, metavar='',help='Specify which fo
 
 args = parser.parse_args()
 
-# inpath_p1=os.path.join(*["C:","Users","Alex","UniProj","test_tiff"]) #This inpath is used for testing purposes only
-
 periods=["2021-2040"] #,"2041-2060"]
 
-#gcms=['ACCESS-ESM1-5','BCC-CSM2-MR',"CanESM5"]  #This gcms are only for testing purposes
     
 name_p1="wc2.1_30s_bioc_"
 
 
-def build_gdal_call(band,infiles, outfile):
-    """
-    Returns
-    -------
-    string with the shell command to be called on Gda.
-
-    """    
-    return  'gdal_calc.py -A '+' '.join(infiles)+f' --outfile={outfile} --A_band={band} --calc="numpy.average(A,axis=0)"'
-                
-
-
 def copy_from_payal(ssp, period):
+    """Copies gcm's bioclim variables of specified ssp and period, from Payal's drive 
+    It follows Payal's folder structure ./worldclim/future/raw/cmip6/30s so it is meant to be run only pointing to that folder
+
+    Args:
+        ssp (str): ssp whose gcm's will be copied
+        period (str): period whose gcm's will be copied
+    """
         
     start_glob=time.time()
-    inpath_p1=os.path.join("/",*["home","ubuntu","mnt3","worldclim","future","raw","cmip6","30s"]) # Builds the path where the models are stored
+
+    # Builds the path where the models are stored, following Payal's drive folder structure
+    inpath_p1=os.path.join("/",*["home","ubuntu","mnt3","worldclim","future","raw","cmip6","30s"]) 
     print("Payal's files are in: ",inpath_p1)
 
     out_folder=f'/home/ubuntu/mnt/exp_alex/{period}/{ssp}'
@@ -59,7 +54,7 @@ def copy_from_payal(ssp, period):
         f"Creating output folder for period {period} and {ssp}"
         os.makedirs(out_folder)
 
-    gcms=["ACCESS-ESM1-5","BCC-CSM2-MR","CanESM5","CanESM5-CanOE","CMCC-ESM2","CNRM-CM6-1","CNRM-CM6-1-HR","CNRM-ESM2-1",\
+    gcms=["ACCESS-CM2","ACCESS-ESM1-5","BCC-CSM2-MR","CanESM5","CanESM5-CanOE","CMCC-ESM2","CNRM-CM6-1","CNRM-CM6-1-HR","CNRM-ESM2-1",\
       "EC-Earth3-Veg","EC-Earth3-Veg-LR","FIO-ESM-2-0","GFDL-ESM4","GISS-E2-1-G","GISS-E2-1-H","HadGEM3-GC31-LL",\
           "INM-CM4-8","INM-CM5-0","IPSL-CM6A-LR","MIROC-ES2L","MIROC6","MPI-ESM1-2-HR","MPI-ESM1-2-LR","MRI-ESM2-0","UKESM1-0-LL"]
 
@@ -71,12 +66,16 @@ def copy_from_payal(ssp, period):
         #count+=1
         
         ## remember to add check exists()
-        in_file_name=name_p1+"_".join([gcm,ssp,period])+".tif" #Builds file input name
-        in_file_path=os.path.join(*[inpath_p1,gcm,ssp,in_file_name]) #Builds path to input file
+        # Builds file input name in format 1_30s_bioc_gcm_ssp_period.tiff. 
+        # For example:  wc2.1_30s_bioc_ACCESS-CM2_ssp126_2021-2040.tif
+        in_file_name=name_p1+"_".join([gcm,ssp,period])+".tif" 
+
+        #Builds path to input file
+        in_file_path=os.path.join(*[inpath_p1,gcm,ssp,in_file_name]) 
         
         
         if not os.path.exists(in_file_path):
-            print(in_file_path, 'Does not exist in Payals directoy, skipping')
+            print(in_file_path, 'Does not exist in Payals directoy, cannot copy')
             not_in_payal.append(str(in_file_path))
             #count_non_exist +=1
         else:

@@ -13,7 +13,7 @@ Created on Wed Jun  8 09:51:00 2022
 """
 
 import os
-import numpy as np
+import numpy as np  
 #from matplotlib import pyplot as plt
 from osgeo import gdal
 import time
@@ -44,10 +44,29 @@ args = parser.parse_args()
 
 
 def build_gdal_call(band,infiles, outfile):
+    """Builds call to gdal_calc.py 
+
+    Args:
+        band (int): Raster band to be used in the call
+        infiles (List[str]): List of strings with the paths to input files
+        outfile (str): Path to output file
+
+    Returns:
+        str: CLI command in str format, to be used in a CLI call
+    """
     return  'gdal_calc.py -A '+' '.join(infiles)+f' --outfile={outfile} --A_band={band} --calc="numpy.nanmean(A,axis=0)" --NoDataValue=-9999'
             
 
-def average_ssp_period_sband(band, ssp, period, input_path=None, out_path=None):
+def average_ssp_period_sband(band, ssp, period, input_path, out_path=None):
+    """_summary_
+
+    Args:
+        band (int): Raster band to be used in the call
+        ssp (str): ssp for which the average is being calculated
+        period (str): period for which the average is being calculated.
+        input_path (str, Path): Path to the folder containing the gcm's that will be averaged across
+        out_path (str, Path): Path to output folder. Defaults to None. If None, it creates the output folder in the current working directory
+    """
 
     input_folder=''
     if input_path is None:    
@@ -74,8 +93,7 @@ def average_ssp_period_sband(band, ssp, period, input_path=None, out_path=None):
 
         if not os.path.exists(out_folder):
             os.makedirs(out_folder)
-        
-        
+
         out_file_name=f'bio{band}_{ssp}_{period}.tif'
         out_file_path=os.path.join(out_folder, out_file_name)
         
@@ -85,6 +103,13 @@ def average_ssp_period_sband(band, ssp, period, input_path=None, out_path=None):
         
         print(call)
         
+        with open(f'{out_folder}/info{ssp}_{period}.txt','w') as f:
+            f.write('GCMs used for the average:\n')
+            for iname in infile_names:
+                f.write(str(iname))
+                f.write('\n')
+
+
         start=time.time()
         os.system(call) # Calling the gdal_calc.py function
         end=time.time()
