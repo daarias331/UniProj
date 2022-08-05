@@ -32,7 +32,7 @@ periods=["2021-2040"] #,"2041-2060"]
 name_p1="wc2.1_30s_bioc_"
 
 
-def copy_from_payal(ssp, period, out=None):
+def copy_from_payal(ssp: str, period: str, out=None):
     """Copies gcm's bioclim variables of specified ssp and period, from Payal's drive to Skip's Mediaflux storage
     It follows Payal's folder structure ./worldclim/future/raw/cmip6/30s so it is meant to be run only pointing to that folder  
     Args:
@@ -40,8 +40,6 @@ def copy_from_payal(ssp, period, out=None):
         period (str): period whose gcm's will be copied
         out (str, optional): Output folder. Defaults to None.
     """
-   
-        
     start_glob=time.time()
 
     # Builds the path where the models are stored, following Payal's drive folder structure
@@ -51,10 +49,9 @@ def copy_from_payal(ssp, period, out=None):
     if out is None:
         out_folder=f'/home/ubuntu/mnt/exp_alex/{period}/{ssp}'
     else:
-        out_folder=os.path.join(out,[period,ssp])
+        out_folder=os.path.join(out,*[str(period),str(ssp)])
 
  
-    
     if not os.path.exists(out_folder):
         f"Creating output folder for period {period} and {ssp}"
         os.makedirs(out_folder)
